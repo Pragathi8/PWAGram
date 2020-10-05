@@ -1,5 +1,5 @@
-let deferredPrompt;
-let enableNotificationsButtons = document.querySelectorAll(
+var deferredPrompt;
+var enableNotificationsButtons = document.querySelectorAll(
   ".enable-notifications"
 );
 
@@ -9,7 +9,7 @@ if (!window.Promise) {
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker
-    .register("/sw.js")
+    .register("/service-worker.js")
     .then(function() {
       console.log("Service worker registered!");
     })
@@ -25,9 +25,9 @@ window.addEventListener("beforeinstallprompt", function(event) {
   return false;
 });
 
-const displayConfirmNotification = () => {
+function displayConfirmNotification() {
   if ("serviceWorker" in navigator) {
-    const options = {
+    var options = {
       body: "You successfully Subscribed to our Notification Service",
       icon: "/src/images/icons/app-icon-96x96.png",
       image: "/src/images/sf-boat.jpg",
@@ -51,28 +51,28 @@ const displayConfirmNotification = () => {
       ]
     };
 
-    navigator.serviceWorker.ready.then(swReg => {
+    navigator.serviceWorker.ready.then(function(swReg) {
       swReg.showNotification("Successfully Subscribed!", options);
     });
   }
-};
+}
 
-const configurePushSub = () => {
+function configurePushSub() {
   if (!("serviceWorker" in navigator)) {
     return;
   }
-  let reg;
+  var reg;
   navigator.serviceWorker.ready
-    .then(swReg => {
+    .then(function(swReg) {
       reg = swReg;
       return swReg.pushManager.getSubscription();
     })
-    .then(sub => {
+    .then(function(sub) {
       if (sub === null) {
         //create a new subscription
-        let vapidPublicKey =
+        var vapidPublicKey =
           "BKxqQqWvfWAFtKbtz2j3gY5R-eKfKNfXco1arjNSKBWDrlcWRpi4cw_xmjzqBD03Vw7oiDvZeAr8cTsnIZKvwRE";
-        let convertedVapidPublicKey = urlBase64ToUint8Array(vapidPublicKey);
+        var convertedVapidPublicKey = urlBase64ToUint8Array(vapidPublicKey);
         return reg.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: convertedVapidPublicKey
@@ -81,7 +81,7 @@ const configurePushSub = () => {
         //we have a subscription
       }
     })
-    .then(newSub => {
+    .then(function(newSub) {
       return fetch("https://pwagram08.firebaseio.com/subscriptions.json", {
         method: "POST",
         headers: {
@@ -91,18 +91,18 @@ const configurePushSub = () => {
         body: JSON.stringify(newSub)
       });
     })
-    .then(res => {
+    .then(function(res) {
       if (res.ok) {
         displayConfirmNotification();
       }
     })
-    .catch(err => {
+    .catch(function(err) {
       console.log(err);
     });
-};
+}
 
-const askForNotificationPermission = () => {
-  Notification.requestPermission(result => {
+function askForNotificationPermission() {
+  Notification.requestPermission(function(result) {
     console.log("user choice", result);
     if (result !== "granted") {
       console.log("No notification permission granted!");
@@ -111,10 +111,10 @@ const askForNotificationPermission = () => {
       configurePushSub();
     }
   });
-};
+}
 
 if ("Notification" in window && "serviceWorker" in navigator) {
-  for (let i = 0; i < enableNotificationsButtons.length; i++) {
+  for (var i = 0; i < enableNotificationsButtons.length; i++) {
     enableNotificationsButtons[i].style.display = "inline-block";
     enableNotificationsButtons[i].addEventListener(
       "click",

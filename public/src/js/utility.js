@@ -1,4 +1,4 @@
-const dbPromise = idb.open("posts-store", 1, db => {
+var dbPromise = idb.open("posts-store", 1, function(db) {
   if (!db.objectStoreNames.contains("posts-store")) {
     db.createObjectStore("posts", { keyPath: "id" });
   }
@@ -7,44 +7,44 @@ const dbPromise = idb.open("posts-store", 1, db => {
   }
 });
 
-const writeData = (st, data) => {
-  return dbPromise.then(db => {
-    const tx = db.transaction(st, "readwrite");
-    const store = tx.objectStore(st);
+function writeData(st, data) {
+  return dbPromise.then(function(db) {
+    var tx = db.transaction(st, "readwrite");
+    var store = tx.objectStore(st);
     store.put(data);
     return tx.complete;
   });
-};
+}
 
-const readAllData = st => {
-  return dbPromise.then(db => {
-    const tx = db.transaction(st, "readonly");
-    const store = tx.objectStore(st);
+function readAllData(st) {
+  return dbPromise.then(function(db) {
+    var tx = db.transaction(st, "readonly");
+    var store = tx.objectStore(st);
     return store.getAll();
   });
-};
+}
 
-const clearAllData = st => {
-  return dbPromise.then(db => {
-    const tx = db.transaction(st, "readwrite");
-    const store = tx.objectStore(st);
+function clearAllData(st) {
+  return dbPromise.then(function(db) {
+    var tx = db.transaction(st, "readwrite");
+    var store = tx.objectStore(st);
     store.clear();
     return tx.complete;
   });
-};
+}
 
-const deleteItemFromData = (st, id) => {
+function deleteItemFromData(st, id) {
   return dbPromise
-    .then(db => {
-      const tx = db.transaction(st, "readwrite");
-      const store = tx.objectStore(st);
+    .then(function(db) {
+      var tx = db.transaction(st, "readwrite");
+      var store = tx.objectStore(st);
       store.delete(id);
       return tx.complete;
     })
-    .then(() => {
+    .then(function() {
       console.log("[utility] item deleted");
     });
-};
+}
 
 function urlBase64ToUint8Array(base64String) {
   var padding = "=".repeat((4 - (base64String.length % 4)) % 4);

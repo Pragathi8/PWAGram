@@ -1,34 +1,34 @@
-const shareImageButton = document.querySelector("#share-image-button");
-const createPostArea = document.querySelector("#create-post");
-const closeCreatePostModalButton = document.querySelector(
+var shareImageButton = document.querySelector("#share-image-button");
+var createPostArea = document.querySelector("#create-post");
+var closeCreatePostModalButton = document.querySelector(
   "#close-create-post-modal-btn"
 );
-const sharedMomentsArea = document.querySelector("#shared-moments");
-const form = document.querySelector("form");
-const titleInput = document.querySelector("#title");
-const locationInput = document.querySelector("#location");
-const videoPlayer = document.querySelector("#player");
-const canvasElement = document.querySelector("#canvas");
-const captureButton = document.querySelector("#capture-btn");
-const imagePicker = document.querySelector("#image-picker");
-const imagePickerArea = document.querySelector("#pick-image");
-const locationButton = document.querySelector("#location-btn");
-const locationLoader = document.querySelector("#location-loader");
+var sharedMomentsArea = document.querySelector("#shared-moments");
+var form = document.querySelector("form");
+var titleInput = document.querySelector("#title");
+var locationInput = document.querySelector("#location");
+var videoPlayer = document.querySelector("#player");
+var canvasElement = document.querySelector("#canvas");
+var captureButton = document.querySelector("#capture-btn");
+var imagePicker = document.querySelector("#image-picker");
+var imagePickerArea = document.querySelector("#pick-image");
+var locationButton = document.querySelector("#location-btn");
+var locationLoader = document.querySelector("#location-loader");
 
-let picture;
-let fetchedLocation = { lat: 0, lng: 0 };
+var picture;
+var fetchedLocation = { lat: 0, lng: 0 };
 
-locationButton.addEventListener("click", event => {
+locationButton.addEventListener("click", function(event) {
   if (!("geolocation" in navigator)) {
     return;
   }
-  let sawAlert = false;
+  var sawAlert = false;
 
   locationButton.style.display = "none";
   locationLoader.style.display = "block";
 
   navigator.geolocation.getCurrentPosition(
-    position => {
+    function(position) {
       locationButton.style.display = "inline";
       locationLoader.style.display = "none";
       fetchedLocation = {
@@ -45,7 +45,7 @@ locationButton.addEventListener("click", event => {
       locationInput.value = "In Kolar";
       document.querySelector("#manual-location").classList.add("is-focused");
     },
-    err => {
+    function(err) {
       console.log(err);
       locationButton.style.display = "inline";
       locationLoader.style.display = "none";
@@ -61,26 +61,26 @@ locationButton.addEventListener("click", event => {
   );
 });
 
-const initializeLocation = () => {
+function initializeLocation() {
   if (!("geolocation" in navigator)) {
     locationButton.style.display = "none";
   }
-};
+}
 
-const initializeMedia = () => {
+function initializeMedia() {
   if (!("mediaDevices" in navigator)) {
     navigator.mediaDevices = {};
   }
 
   if (!("getUserMedia" in navigator.mediaDevices)) {
-    navigator.mediaDevices.getUserMedia = constraints => {
-      let getUserMedia =
+    navigator.mediaDevices.getUserMedia = function(constraints) {
+      var getUserMedia =
         navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
       if (!getUserMedia) {
         return Promise.reject(new Error("GetUserMedia is not implemented!"));
       }
 
-      return new Promise((resolve, reject) => {
+      return new Promise(function(resolve, reject) {
         getUserMedia.call(navigator, constraints, resolve, reject);
       });
     };
@@ -88,20 +88,20 @@ const initializeMedia = () => {
 
   navigator.mediaDevices
     .getUserMedia({ video: true })
-    .then(stream => {
+    .then(function(stream) {
       videoPlayer.srcObject = stream;
       videoPlayer.style.display = "block";
     })
-    .catch(err => {
+    .catch(function(err) {
       imagePickerArea.style.display = "block";
     });
-};
+}
 
-captureButton.addEventListener("click", event => {
+captureButton.addEventListener("click", function(event) {
   canvasElement.style.display = "block";
   videoPlayer.style.display = "none";
   captureButton.style.display = "none";
-  let context = canvasElement.getContext("2d");
+  var context = canvasElement.getContext("2d");
   context.drawImage(
     videoPlayer,
     0,
@@ -109,19 +109,19 @@ captureButton.addEventListener("click", event => {
     canvas.width,
     videoPlayer.videoHeight / (videoPlayer.videoWidth / canvas.width)
   );
-  videoPlayer.srcObject.getVideoTracks().forEach(track => {
+  videoPlayer.srcObject.getVideoTracks().forEach(function(track) {
     track.stop();
   });
 
   picture = dataURItoBlob(canvasElement.toDataURL());
 });
 
-imagePicker.addEventListener("change", event => {
+imagePicker.addEventListener("change", function(event) {
   picture = event.target.files[0];
 });
 
 function openCreatePostModal() {
-  setTimeout(() => {
+  setTimeout(function() {
     createPostArea.style.transform = "translateY(0)";
   }, 1);
   initializeMedia();
@@ -145,7 +145,7 @@ function openCreatePostModal() {
   //to unregister the SW on click of (+) button
   // if ("serviceWorker" in navigator) {
   //   navigator.serviceWorker.getRegistrations().then(registrations => {
-  //     for (let i = 0; i < registrations.length; i++) {
+  //     for (var i = 0; i < registrations.length; i++) {
   //       registrations[i].unregister();
   //     }
   //   });
@@ -160,36 +160,36 @@ function closeCreatePostModal() {
   locationLoader.style.display = "none";
   captureButton.style.display = "inline";
   if (videoPlayer.srcObject) {
-    videoPlayer.srcObject.getVideoTracks().forEach(track => {
+    videoPlayer.srcObject.getVideoTracks().forEach(function(track) {
       track.stop();
     });
   }
-  setTimeout(() => {
+  setTimeout(function() {
     createPostArea.style.transform = "translateY(100vh)";
   }, 1);
 }
 
 //currently not using. Allows us to save assets in cache on demand
-const onSaveButtonClicked = event => {
+function onSaveButtonClicked(event) {
   console.log("clicked");
   if ("caches" in window) {
-    caches.open("user-requested").then(cache => {
+    caches.open("user-requested").then(function(cache) {
       cache.addAll(["https://httpbin.org/get", "/src/images/sf-boat.jpg"]);
     });
   }
-};
+}
 
 shareImageButton.addEventListener("click", openCreatePostModal);
 
 closeCreatePostModalButton.addEventListener("click", closeCreatePostModal);
 
-const clearCards = () => {
+function clearCards() {
   while (sharedMomentsArea.hasChildNodes()) {
     sharedMomentsArea.removeChild(sharedMomentsArea.lastChild);
   }
-};
+}
 
-const createCard = data => {
+function createCard(data) {
   var cardWrapper = document.createElement("div");
   cardWrapper.className = "shared-moment-card mdl-card mdl-shadow--2dp";
   var cardTitle = document.createElement("div");
@@ -214,17 +214,17 @@ const createCard = data => {
   cardWrapper.appendChild(cardSupportingText);
   componentHandler.upgradeElement(cardWrapper);
   sharedMomentsArea.appendChild(cardWrapper);
-};
+}
 
-const updateUI = data => {
+function updateUI(data) {
   clearCards();
-  for (let i = 0; i < data.length; i++) {
+  for (var i = 0; i < data.length; i++) {
     createCard(data[i]);
   }
-};
+}
 
-const url = "https://pwagram08.firebaseio.com/posts.json";
-let networkDataReceived = false;
+var url = "https://pwagram08.firebaseio.com/posts.json";
+var networkDataReceived = false;
 
 fetch(url)
   .then(function(res) {
@@ -233,15 +233,15 @@ fetch(url)
   .then(function(data) {
     networkDataReceived = true;
     console.log("from web", data);
-    let dataArray = [];
-    for (let key in data) {
+    var dataArray = [];
+    for (var key in data) {
       dataArray.push(data[key]);
     }
     updateUI(dataArray);
   });
 
 if ("indexedDB" in window) {
-  readAllData("posts").then(data => {
+  readAllData("posts").then(function(data) {
     if (!networkDataReceived) {
       console.log("From cache", data);
       updateUI(data);
@@ -249,9 +249,9 @@ if ("indexedDB" in window) {
   });
 }
 
-const sendData = () => {
-  const id = new Date().toISOString();
-  const postData = new FormData();
+function sendData() {
+  var id = new Date().toISOString();
+  var postData = new FormData();
   postData.append("id", id);
   postData.append("title", titleInput.value);
   postData.append("location", locationInput.value);
@@ -263,20 +263,20 @@ const sendData = () => {
     method: "POST",
     body: postData
   })
-    .then(res => {
+    .then(function(res) {
       console.log("sent data", res);
       if (res.ok) {
-        res.json().then(resData => {
+        res.json().then(function(resData) {
           console.log(resData);
         });
       }
     })
-    .catch(err => {
+    .catch(function(err) {
       console.log(err);
     });
-};
+}
 
-form.addEventListener("submit", event => {
+form.addEventListener("submit", function(event) {
   event.preventDefault();
 
   if (titleInput.value.trim() === "" || locationInput.value.trim() === "") {
@@ -286,8 +286,8 @@ form.addEventListener("submit", event => {
   closeCreatePostModal();
 
   if ("serviceWorker" in navigator && "SyncManager" in window) {
-    navigator.serviceWorker.ready.then(sw => {
-      const post = {
+    navigator.serviceWorker.ready.then(function(sw) {
+      var post = {
         id: new Date().toISOString(),
         title: titleInput.value,
         location: locationInput.value,
@@ -295,17 +295,15 @@ form.addEventListener("submit", event => {
         rawLocation: fetchedLocation
       };
       writeData("sync-posts", post)
-        .then(() => {
+        .then(function() {
           sw.sync.register("sync-new-post");
         })
-        .then(() => {
-          const snackbarContainer = document.querySelector(
-            "#confirmation-toast"
-          );
-          const data = { message: "Your post is saved for syncing!" };
+        .then(function() {
+          var snackbarContainer = document.querySelector("#confirmation-toast");
+          var data = { message: "Your post is saved for syncing!" };
           snackbarContainer.MaterialSnackbar.showSnackbar(data);
         })
-        .catch(err => {
+        .catch(function(err) {
           console.log(err);
         });
     });
